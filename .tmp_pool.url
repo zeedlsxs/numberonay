@@ -1,0 +1,1 @@
+postgresql://catchai_owner:npg_P32NokhLasfO@ep-bold-feather-b16abxbq-pooler.c-5.eu-central-1.aws.neon.tech/onaylanumber?connect_timeout=30&pool_timeout=30&pgbouncer=true&sslmode=require&channel_binding=require
