@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Giriş yapmalısınız." }, { status: 401 });
     }
 
-    if (process.env.PAYMENTS_ENABLED !== "true") {
+    if (process.env.PAYMENTS_ENABLED === "false") {
       return NextResponse.json({ success: false, error: "Ödeme sistemi şu anda kullanıma kapalı." }, { status: 503 });
     }
 
