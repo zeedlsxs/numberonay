@@ -1,0 +1,158 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  name        String?
+  surname     String?
+  phone       String?
+  balance     Int      @default(0)
+  status      String   @default("active")
+  role        String   @default("user")
+  lastKnownIp String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  resetTokens  PasswordResetToken[]
+  activations  Activation[]
+  transactions WalletTransaction[]
+  tickets      SupportTicket[]
+  payments     Payment[]
+
+  @@index([createdAt])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Service {
+  id        String   @id
+  name      String
+  slug      String   @unique
+  icon      String
+  isActive  Boolean  @default(true)
+  isHot     Boolean  @default(false)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  countries   ServiceCountry[]
+  activations Activation[]
+}
+
+model Country {
+  id        String   @id
+  name      String
+  isoCode   String   @unique
+  dialCode  String
+  flag      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  services    ServiceCountry[]
+  activations Activation[]
+}
+
+model ServiceCountry {
+  id                String  @id @default(cuid())
+  serviceId         String
+  countryId         String
+  price             Int
+  stock             Int     @default(0)
+  providerReference String?
+  service           Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  country           Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceId, countryId])
+}
+
+model Activation {
+  id              String    @id @default(cuid())
+  userId          String
+  serviceId       String
+  countryId       String
+  phoneNumber     String
+  price           Int
+  status          String    @default("WAITING_SMS")
+  smsCode         String?
+  smsText         String?
+  providerOrderId String?
+  createdAt       DateTime  @default(now())
+  expiresAt       DateTime
+  completedAt     DateTime?
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  service         Service   @relation(fields: [serviceId], references: [id])
+  country         Country   @relation(fields: [countryId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+model WalletTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  amount      Int
+  status      String   @default("completed")
+  description String
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model SupportTicket {
+  id        String   @id @default(cuid())
+  userId    String
+  subject   String
+  category  String
+  message   String
+  status    String   @default("open")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  userId      String
+  provider    String   @default("iyzico")
+  providerRef String?
+  amount      Int
+  currency    String   @default("TRY")
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model BlogPost {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  excerpt     String
+  content     String
+  coverImage  String?
+  status      String    @default("published")
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
