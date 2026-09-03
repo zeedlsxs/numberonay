@@ -92,7 +92,7 @@ export function isMockPaymentMode() {
   const provider = (process.env.PAYMENT_PROVIDER || "").trim().toLowerCase();
   const apiKey = (process.env.IYZICO_API_KEY || "").trim();
   const secretKey = (process.env.IYZICO_SECRET_KEY || "").trim();
-  return provider === "mock" || !apiKey || !secretKey || apiKey === "sandbox-api-key" || secretKey === "sandbox-secret-key";
+  return provider === "mock" || (apiKey === "sandbox-api-key" && secretKey === "sandbox-secret-key");
 }
 
 export class IyzicoService {
