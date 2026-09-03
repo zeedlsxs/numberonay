@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const { amount, currency = "TRY", card } = body;
     const parsedAmount = Number(amount);
 
-    if (!Number.isFinite(parsedAmount) || parsedAmount < 1000) {
+    if (!Number.isFinite(parsedAmount) || parsedAmount < 10 || parsedAmount > 100000) {
       return NextResponse.json(
         { success: false, error: "Minimum yükleme tutarı 10 TL." },
         { status: 400 },
@@ -211,8 +211,7 @@ export async function POST(request: NextRequest) {
       amount: paymentResponse.price,
       currency: paymentResponse.currency,
     });
-  } catch (error) {
-    console.error("Payment initiation error:", error);
+  } catch {
     return NextResponse.json({ success: false, error: "Sunucu hatası oluştu" }, { status: 500 });
   }
 }
