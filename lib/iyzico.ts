@@ -81,11 +81,6 @@ export class IyzicoService {
     try {
       // In a real implementation, this would call iyzico API
       // For now, we'll return a mock response
-      console.log('Creating 3DS payment with iyzico:', {
-        price: request.price,
-        currency: request.currency,
-        basketId: request.basketId
-      });
 
       // Mock response for development
       return {
@@ -97,8 +92,7 @@ export class IyzicoService {
         installment: request.installment,
         fraudStatus: 'APPROVED'
       };
-    } catch (error) {
-      console.error('iyzico payment error:', error);
+    } catch {
       return {
         status: 'error',
         errorMessage: 'Ödeme işlemi başlatılamadı',
@@ -113,7 +107,6 @@ export class IyzicoService {
   // Complete 3D Secure payment
   async complete3DSPayment(paymentId: string, conversationData: string): Promise<PaymentResponse> {
     try {
-      console.log('Completing 3DS payment:', paymentId);
 
       // Mock response
       return {
@@ -125,8 +118,7 @@ export class IyzicoService {
         installment: 1,
         fraudStatus: 'APPROVED'
       };
-    } catch (error) {
-      console.error('iyzico complete payment error:', error);
+    } catch {
       return {
         status: 'error',
         errorMessage: 'Ödeme tamamlanamadı',
@@ -142,7 +134,6 @@ export class IyzicoService {
   // Get payment details
   async getPaymentDetails(paymentId: string): Promise<PaymentResponse> {
     try {
-      console.log('Getting payment details:', paymentId);
 
       // Mock response
       return {
@@ -154,8 +145,7 @@ export class IyzicoService {
         installment: 1,
         fraudStatus: 'APPROVED'
       };
-    } catch (error) {
-      console.error('iyzico get payment error:', error);
+    } catch {
       return {
         status: 'error',
         errorMessage: 'Ödeme detayları alınamadı',
@@ -171,7 +161,6 @@ export class IyzicoService {
   // Refund payment
   async refundPayment(paymentId: string, amount?: number): Promise<PaymentResponse> {
     try {
-      console.log('Refunding payment:', paymentId, amount);
 
       // Mock response
       return {
@@ -182,8 +171,7 @@ export class IyzicoService {
         currency: 'TRY',
         installment: 1
       };
-    } catch (error) {
-      console.error('iyzico refund error:', error);
+    } catch {
       return {
         status: 'error',
         errorMessage: 'İade işlemi başarısız',
@@ -199,7 +187,6 @@ export class IyzicoService {
   // Cancel payment
   async cancelPayment(paymentId: string): Promise<PaymentResponse> {
     try {
-      console.log('Cancelling payment:', paymentId);
 
       // Mock response
       return {
@@ -210,8 +197,7 @@ export class IyzicoService {
         currency: 'TRY',
         installment: 1
       };
-    } catch (error) {
-      console.error('iyzico cancel error:', error);
+    } catch {
       return {
         status: 'error',
         errorMessage: 'İptal işlemi başarısız',
