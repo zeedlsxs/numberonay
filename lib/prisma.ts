@@ -17,7 +17,7 @@ globalForPrisma.prisma = prisma;
 
 export function isDatabaseUnreachable(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error ?? "");
-  return /P1001|P1002|P1017|Can't reach database|exceeded the data transfer quota|timed out|ECONNRESET|ECONNREFUSED/i.test(
+  return /P1001|P1002|P1003|P1011|P1017|P2021|P2022|Can't reach database|Environment variable not found|exceeded the data transfer quota|timed out|ECONNRESET|ECONNREFUSED/i.test(
     message,
   );
 }
