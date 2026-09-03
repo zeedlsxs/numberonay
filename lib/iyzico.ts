@@ -108,7 +108,7 @@ export class IyzicoService {
     const signature = createHmac("sha256", this.config.secretKey).update(randomKey + path + body).digest("hex");
     const authorizationString = "apiKey:" + this.config.apiKey + "&randomKey:" + randomKey + "&signature:" + signature;
     const authorization = Buffer.from(authorizationString, "utf8").toString("base64");
-    const response = await fetch(this.config.baseUrl.replace(/\\/$/, "") + path, {
+    const response = await fetch(this.config.baseUrl.replace(/\/$/, "") + path, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
