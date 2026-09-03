@@ -13,7 +13,6 @@ export interface TelegramNotification {
 
 export async function sendTelegramNotification(data: TelegramNotification) {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-    console.log('Telegram credentials not configured');
     return false;
   }
 
@@ -66,7 +65,6 @@ export async function sendTelegramNotification(data: TelegramNotification) {
   const result = await response.json();
   return result.ok;
   } catch (error) {
-    console.error('Telegram notification failed:', error);
     return false;
   }
 }
