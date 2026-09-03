@@ -76,7 +76,6 @@ export async function POST(request: Request) {
         { status: 503 },
       );
     }
-    console.error("register", error);
     return NextResponse.json({ error: "Kayıt tamamlanamadı." }, { status: 500 });
   }
 }
