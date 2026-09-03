@@ -14,7 +14,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Giriş yapmalısınız." }, { status: 401 });
     }
 
-    const body = await request.json();
+    const contentType = request.headers.get("content-type") || "";
+    const body = contentType.includes("application/json")
+      ? await request.json()
+      : Object.fromEntries((await request.formData()).entries());
     const paymentId = typeof body.paymentId === "string" ? body.paymentId.trim() : "";
     const conversationData = typeof body.conversationData === "string" ? body.conversationData : undefined;
     if (!paymentId) {
