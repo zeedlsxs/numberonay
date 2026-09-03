@@ -25,11 +25,11 @@ const quickAmounts = [50, 100, 250, 500];
 const emptyPaymentForm: PaymentForm = { amount: "", cardHolderName: "", cardNumber: "", expiryMonth: "", expiryYear: "", cvc: "" };
 
 function formatCardNumber(value: string) {
-  return value.replace(/\\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+  return value.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
 }
 
 function passesLuhn(value: string) {
-  const digits = value.replace(/\\D/g, "");
+  const digits = value.replace(/\D/g, "");
   if (digits.length < 13 || digits.length > 19) return false;
   let sum = 0;
   let shouldDouble = false;
@@ -111,9 +111,9 @@ export default function WalletPage() {
     setToast(null);
 
     const amount = Number(paymentForm.amount);
-    const cardNumber = paymentForm.cardNumber.replace(/\\s/g, "");
+    const cardNumber = paymentForm.cardNumber.replace(/\s/g, "");
     const month = Number(paymentForm.expiryMonth);
-    const year = paymentForm.expiryYear.replace(/\\D/g, "");
+    const year = paymentForm.expiryYear.replace(/\D/g, "");
 
     if (!Number.isInteger(amount) || amount < 10 || amount > 100000) {
       setPaymentError("Yükleme tutarı 10 TL ile 100.000 TL arasında olmalı.");
@@ -131,7 +131,7 @@ export default function WalletPage() {
       setPaymentError("Son kullanma tarihini AA / YY formatında girin.");
       return;
     }
-    if (!/^\\d{3,4}$/.test(paymentForm.cvc)) {
+    if (!/^\d{3,4}$/.test(paymentForm.cvc)) {
       setPaymentError("CVV 3 veya 4 haneli olmalı.");
       return;
     }
@@ -216,7 +216,7 @@ export default function WalletPage() {
             <Input label="Tutar (TL)" type="number" min="10" max="100000" step="1" placeholder="100" value={paymentForm.amount} onChange={(event) => updateForm("amount", event.target.value)} required />
             <Input label="Kart üzerindeki ad soyad" type="text" autoComplete="cc-name" placeholder="AD SOYAD" value={paymentForm.cardHolderName} onChange={(event) => updateForm("cardHolderName", event.target.value.toUpperCase())} required />
             <Input label="Kart numarası" type="text" inputMode="numeric" autoComplete="cc-number" placeholder="1234 5678 9012 3456" value={paymentForm.cardNumber} onChange={(event) => updateForm("cardNumber", formatCardNumber(event.target.value))} maxLength={19} required />
-            <div className="grid grid-cols-3 gap-3"><Input label="Ay" type="text" inputMode="numeric" autoComplete="cc-exp-month" placeholder="AA" value={paymentForm.expiryMonth} onChange={(event) => updateForm("expiryMonth", event.target.value.replace(/\\D/g, "").slice(0, 2))} required /><Input label="Yıl" type="text" inputMode="numeric" autoComplete="cc-exp-year" placeholder="YY" value={paymentForm.expiryYear} onChange={(event) => updateForm("expiryYear", event.target.value.replace(/\\D/g, "").slice(0, 2))} required /><Input label="CVV" type="password" inputMode="numeric" autoComplete="cc-csc" placeholder="•••" value={paymentForm.cvc} onChange={(event) => updateForm("cvc", event.target.value.replace(/\\D/g, "").slice(0, 4))} maxLength={4} required /></div>
+            <div className="grid grid-cols-3 gap-3"><Input label="Ay" type="text" inputMode="numeric" autoComplete="cc-exp-month" placeholder="AA" value={paymentForm.expiryMonth} onChange={(event) => updateForm("expiryMonth", event.target.value.replace(/\D/g, "").slice(0, 2))} required /><Input label="Yıl" type="text" inputMode="numeric" autoComplete="cc-exp-year" placeholder="YY" value={paymentForm.expiryYear} onChange={(event) => updateForm("expiryYear", event.target.value.replace(/\D/g, "").slice(0, 2))} required /><Input label="CVV" type="password" inputMode="numeric" autoComplete="cc-csc" placeholder="•••" value={paymentForm.cvc} onChange={(event) => updateForm("cvc", event.target.value.replace(/\D/g, "").slice(0, 4))} maxLength={4} required /></div>
             <p className="flex items-start gap-2 text-xs leading-5 text-slate-500"><Lock className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Ödeme, güvenli sağlayıcı üzerinden gerçekleştirilir. Hassas bilgiler loglanmaz.</p>
             <Button type="submit" loading={isProcessing} className="flex w-full items-center justify-center gap-2 bg-yellow-500 py-3 font-semibold text-black hover:bg-yellow-400">Ödemeye devam et {!isProcessing && <ChevronRight className="h-4 w-4" />}</Button>
           </div>
