@@ -2,6 +2,7 @@ import { hashPassword, isValidEmail, setAuthCookie, signToken, toPublicUser } fr
 import { EMAIL_INVALID_MESSAGE } from "@/lib/email";
 import { isDatabaseUnreachable, prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { readJwtSecret } from "@/lib/secrets";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,6 +27,13 @@ export async function POST(request: Request) {
     }
     if (!acceptTerms) {
       return NextResponse.json({ error: "Kullanım şartlarını kabul etmelisiniz." }, { status: 400 });
+    }
+
+    if (!readJwtSecret()) {
+      return NextResponse.json(
+        { error: "Kimlik doğrulama yapılandırması eksik. Lütfen daha sonra tekrar deneyin." },
+        { status: 503 },
+      );
     }
 
     const exists = await prisma.user.findUnique({ where: { email } });
