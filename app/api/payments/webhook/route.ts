@@ -1,48 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
+  const expectedSecret = process.env.IYZICO_WEBHOOK_SECRET?.trim();
+  const providedSecret = request.headers.get("x-iyzico-webhook-secret")?.trim();
+  if (!expectedSecret || !providedSecret || providedSecret !== expectedSecret) {
+    return NextResponse.json({ success: false }, { status: 401, headers: { "Cache-Control": "no-store" } });
+  }
+
   try {
     const body = await request.json();
     const { paymentId, status, amount, userId } = body;
-
-    // Webhook güvenliği kontrolü (iyzico signature)
-    const signature = request.headers.get('x-iyzico-signature');
-    
-    // Burada signature doğrulaması yapılacak
-    
-    // Ödeme sonucuna göre işlem
-    if (status === 'success') {
-      // Kullanıcıya bakiye ekle
-      // Telegram botuna bildirim gönder
-      await sendTelegramNotification({
-        type: 'payment_success',
-        paymentId,
-        amount,
-        userId,
-        timestamp: new Date().toISOString()
-      });
-    } else {
-      // Başarısız ödeme bildirimi
-      await sendTelegramNotification({
-        type: 'payment_failed',
-        paymentId,
-        amount,
-        userId,
-        timestamp: new Date().toISOString()
-      });
+    if (!paymentId || typeof status !== "string") {
+      return NextResponse.json({ success: false }, { status: 400, headers: { "Cache-Control": "no-store" } });
     }
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: 'Webhook işlenemedi' },
-      { status: 500 }
-    );
+    // Payment settlement is handled by the verified provider callback.
+    void amount;
+    void userId;
+    return NextResponse.json({ success: true }, { headers: { "Cache-Control": "no-store" } });
+  } catch {
+    return NextResponse.json({ success: false }, { status: 400, headers: { "Cache-Control": "no-store" } });
   }
-}
-
-async function sendTelegramNotification(data: any) {
-  // Telegram bot API çağrısı
-  // Şimdilik mock
-  console.log('Telegram notification:', data);
 }
