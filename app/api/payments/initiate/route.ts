@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { amount, currency = "TRY", card } = body;
     const parsedAmount = Number(amount);
-    const cardNumber = typeof card?.cardNumber === "string" ? card.cardNumber.replace(/\\D/g, "") : "";
+    const cardNumber = typeof card?.cardNumber === "string" ? card.cardNumber.replace(/\D/g, "") : "";
     const cardHolderName = typeof card?.cardHolderName === "string" ? card.cardHolderName.trim() : "";
     const expireMonth = typeof card?.expireMonth === "string" ? card.expireMonth : "";
     const expireYear = typeof card?.expireYear === "string" ? card.expireYear : "";
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     if (currency !== "TRY") {
       return NextResponse.json({ success: false, error: "Sadece TL ile ödeme yapılabilir." }, { status: 400 });
     }
-    if (!cardHolderName || !validateCardNumber(cardNumber) || month < 1 || month > 12 || !/^\\d{2}$/.test(expireYear) || !/^\\d{3,4}$/.test(cvc)) {
+    if (!cardHolderName || !validateCardNumber(cardNumber) || month < 1 || month > 12 || !/^\d{2}$/.test(expireYear) || !/^\d{3,4}$/.test(cvc)) {
       return NextResponse.json({ success: false, error: "Kart bilgileri geçersiz. Lütfen tüm alanları kontrol edin." }, { status: 400 });
     }
 
