@@ -1,62 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getIyzicoService } from '@/lib/iyzico';
-import { sendTelegramNotification } from '@/lib/telegram';
+import { NextRequest, NextResponse } from "next/server";
+import { getSessionUser } from "@/lib/auth";
+import { getIyzicoService } from "@/lib/iyzico";
+import { sendTelegramNotification } from "@/lib/telegram";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSessionUser();
+    if (!session) {
+      return NextResponse.json({ success: false, error: "Giriş yapmalısınız." }, { status: 401 });
+    }
     const body = await request.json();
     const { paymentId, conversationData } = body;
-
-    if (!paymentId) {
-      return NextResponse.json(
-        { success: false, error: 'Payment ID gerekli' },
-        { status: 400 }
-      );
+    if (!paymentId || typeof paymentId !== "string") {
+      return NextResponse.json({ success: false, error: "Payment ID gerekli" }, { status: 400 });
     }
 
-    // Complete 3D Secure payment
-    const iyzicoService = getIyzicoService();
-    const paymentResponse = await iyzicoService.complete3DSPayment(paymentId, conversationData);
-
-    if (paymentResponse.status === 'success') {
-      // Send success notification to Telegram
-      await sendTelegramNotification({
-        type: 'payment_success',
-        paymentId: paymentResponse.paymentId,
-        amount: paymentResponse.price,
-        userId: 'unknown', // This would come from auth in production
-        timestamp: new Date().toISOString()
-      });
-
-      return NextResponse.json({
-        success: true,
-        paymentId: paymentResponse.paymentId,
-        amount: paymentResponse.price,
-        currency: paymentResponse.currency
-      });
-    } else {
-      // Send failure notification to Telegram
-      await sendTelegramNotification({
-        type: 'payment_failed',
-        paymentId: paymentId,
-        amount: paymentResponse.price,
-        userId: 'unknown',
-        timestamp: new Date().toISOString()
-      });
-
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: paymentResponse.errorMessage || 'Ödeme tamamlanamadı' 
-        },
-        { status: 400 }
-      );
+    const paymentResponse = await getIyzicoService().complete3DSPayment(paymentId, conversationData);
+    if (paymentResponse.status === "success") {
+      await sendTelegramNotification({ type: "payment_success", paymentId: paymentResponse.paymentId, amount: paymentResponse.price, userId: session.id, timestamp: new Date().toISOString() });
+      return NextResponse.json({ success: true, paymentId: paymentResponse.paymentId, amount: paymentResponse.price, currency: paymentResponse.currency });
     }
-  } catch (error) {
-    console.error('Payment completion error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Sunucu hatası oluştu' },
-      { status: 500 }
-    );
+    await sendTelegramNotification({ type: "payment_failed", paymentId, amount: paymentResponse.price, userId: session.id, timestamp: new Date().toISOString() });
+    return NextResponse.json({ success: false, error: paymentResponse.errorMessage || "Ödeme tamamlanamadı" }, { status: 400 });
+  } catch {
+    return NextResponse.json({ success: false, error: "Sunucu hatası oluştu" }, { status: 500 });
   }
 }
