@@ -4,8 +4,6 @@ import { prisma } from "@/lib/prisma";
 import {
   checkRateLimit,
   detectSuspiciousActivity,
-  getCardBin,
-  maskCardNumber,
   validateCardNumber,
 } from "@/lib/security";
 import { getIyzicoService } from "@/lib/iyzico";
@@ -59,17 +57,6 @@ export async function POST(request: NextRequest) {
 
     if (card?.cardNumber && !validateCardNumber(card.cardNumber)) {
       return NextResponse.json({ success: false, error: "Geçersiz kart numarası" }, { status: 400 });
-    }
-
-    if (card?.cardNumber) {
-      console.log("Payment attempt:", {
-        userId: session.id,
-        amount: parsedAmount,
-        currency,
-        maskedCard: maskCardNumber(card.cardNumber),
-        cardBin: getCardBin(card.cardNumber),
-        ip,
-      });
     }
 
     const suspiciousActivity = detectSuspiciousActivity(session.id, ip, 0, 60000);
